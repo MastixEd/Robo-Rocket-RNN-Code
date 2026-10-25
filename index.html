@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Robo-Rocket Learns to Count: a code movie</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Fira+Code:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#120b2e;--bg2:#2a1659;--cy:#43e8d8;--sun:#ffc94a;--co:#ff6b8b;--li:#b9a6ff;--tx:#f6f1ff;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}
+body{background:radial-gradient(ellipse at 50% 0,var(--bg2),var(--bg) 70%) fixed;color:var(--tx);font:600 18px/1.45 "Baloo 2",system-ui,sans-serif;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;background-image:radial-gradient(2px 2px at 20% 30%,#fff8,transparent),radial-gradient(2px 2px at 70% 20%,#fff6,transparent),radial-gradient(1.5px 1.5px at 40% 80%,#fff7,transparent),radial-gradient(2px 2px at 85% 65%,#fff5,transparent);pointer-events:none}
+header{text-align:center;padding:14px 12px 0}
+h1{margin:0;font-weight:800;font-size:clamp(22px,5vw,34px);color:var(--sun)}
+#chap{color:var(--cy);font-size:17px;margin-top:2px}
+#stage{perspective:900px;margin:6px auto 0;width:100%;max-width:640px;position:relative}
+#scale{width:580px;transform-origin:top left;position:relative;height:270px}
+#world{position:absolute;inset:0;transform-style:preserve-3d;animation:sway 14s ease-in-out infinite alternate}
+@keyframes sway{from{transform:rotateY(-11deg) rotateX(7deg)}to{transform:rotateY(11deg) rotateX(3deg)}}
+.col{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transform-style:preserve-3d}
+.row{display:flex;gap:10px;position:relative;transform-style:preserve-3d;justify-content:center}
+.cube{width:46px;height:46px;border-radius:10px;background:linear-gradient(#ffe08a,#ffb020);color:#3a2400;font:800 22px "Baloo 2";display:grid;place-items:center;box-shadow:1px 1px 0 #c98400,2px 2px 0 #c98400,3px 3px 0 #b97800,4px 4px 0 #a86c00,5px 5px 14px #0009;transform:translateZ(30px);animation:fl 3s ease-in-out infinite alternate}
+.cube:nth-child(even){animation-delay:-1.5s}.cube.in{background:linear-gradient(#9ff5ec,#2ec4b6);color:#05403a;box-shadow:1px 1px 0 #1c8f84,2px 2px 0 #1c8f84,3px 3px 0 #177a70,4px 4px 0 #136a61,5px 5px 14px #0009}
+@keyframes fl{to{transform:translateZ(60px) translateY(-6px)}}
+.win{position:absolute;left:-8px;top:-8px;width:174px;height:62px;border:4px solid var(--co);border-radius:16px;box-shadow:0 0 22px var(--co),inset 0 0 14px #ff6b8b55;transform:translateZ(70px)}
+.win.go{animation:slide 7s steps(7,end) infinite}
+@keyframes slide{to{transform:translateZ(70px) translateX(392px)}}
+.big{font-size:60px;filter:drop-shadow(0 8px 10px #000a);transform:translateZ(80px);animation:fl 2.4s ease-in-out infinite alternate}
+.lab{font-size:17px;color:var(--li);text-align:center;transform:translateZ(40px)}
+.bx{border:3px dashed var(--li);border-radius:16px;padding:8px 14px;min-width:200px;min-height:60px;font:500 14px "Fira Code",monospace;color:var(--cy);background:#ffffff10;transform:translateZ(40px)}
+.bx b{display:block;color:var(--sun);font:800 16px "Baloo 2"}
+.tool{width:150px;padding:14px 8px;text-align:center;border-radius:18px;background:#ffffff12;border:2px solid #ffffff25;opacity:.35;transform:translateZ(20px);transition:.5s}
+.tool.on{opacity:1;background:#43e8d822;border-color:var(--cy);box-shadow:0 0 26px #43e8d877;transform:translateZ(70px) scale(1.08)}
+.tool span{display:block;font-size:44px}
+.orb{width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fff,var(--li) 40%,#6a4fd8);box-shadow:0 10px 18px #0009;transform:translateZ(50px);animation:fl 2s ease-in-out infinite alternate}
+.orb:nth-child(odd){animation-delay:-1s}
+.bar{width:420px;height:26px;border-radius:14px;background:#ffffff18;border:2px solid #ffffff30;overflow:hidden;transform:translateZ(40px)}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cy),var(--sun));animation:fill 7s linear infinite}
+@keyframes fill{to{width:100%}}
+.spin{animation:rot 1.6s linear infinite;display:inline-block}@keyframes rot{to{transform:rotate(360deg)}}
+.say{background:#fff;color:#2a1659;border-radius:22px;padding:10px 22px;font:800 30px "Baloo 2";box-shadow:0 12px 30px #000a;transform:translateZ(90px)}
+#card{max-width:640px;margin:10px auto 0;padding:0 14px;perspective:700px}
+#code{background:#0b0620;border:2px solid #ffffff22;border-radius:16px;padding:12px 8px;font:500 clamp(11.5px,2.9vw,15px)/1.7 "Fira Code",ui-monospace,monospace;transform:rotateX(5deg);box-shadow:0 18px 40px #000b,0 0 0 1px #43e8d822;overflow-x:auto}
+#code div{padding:0 10px;border-radius:8px;white-space:pre;color:#a99bd6;transition:.3s}
+#code .on{background:linear-gradient(90deg,#ff6b8b55,#ff6b8b11);color:#fff;box-shadow:inset 4px 0 var(--co)}
+#code .cm{color:#6f8f86}
+#cap{max-width:640px;margin:12px auto 0;padding:0 16px;min-height:96px;font-size:clamp(18px,4.4vw,23px);line-height:1.4;text-align:center}
+#ctl{display:flex;justify-content:center;align-items:center;gap:10px;margin:8px 0 6px}
+button{font:800 20px "Baloo 2";border:0;border-radius:50px;padding:8px 20px;background:var(--sun);color:#3a2400;cursor:pointer;box-shadow:0 5px 0 #b97800}
+button:active{transform:translateY(3px);box-shadow:0 2px 0 #b97800}button:focus-visible{outline:3px solid var(--cy);outline-offset:3px}
+button.s{background:#ffffff20;color:var(--tx);box-shadow:0 5px 0 #0006}
+#dots{display:flex;justify-content:center;gap:7px;padding-bottom:18px}#dots i{width:10px;height:10px;border-radius:50%;background:#ffffff30}#dots i.on{background:var(--co);box-shadow:0 0 10px var(--co)}
+#ov{position:fixed;inset:0;display:grid;place-items:center;text-align:center;background:radial-gradient(circle,#2a1659,#0b0620);z-index:9;padding:20px}
+#ov .big{font-size:84px;display:block}#ov h2{font-size:clamp(28px,7vw,46px);margin:6px 0;color:var(--sun)}#ov p{max-width:420px;margin:0 auto 18px}
+@media(prefers-reduced-motion:reduce){#world,.cube,.orb,.big,.win.go,.bar i,.spin{animation:none}.bar i{width:100%}}
+</style></head><body>
+<div id="ov"><div><span class="big">🚀</span><h2>Robo-Rocket Learns to Count</h2><p>A 3D code movie with a friendly narrator. Turn your sound on, then press start!</p><button id="go">▶ Start the movie</button></div></div>
+<header><h1>Robo-Rocket Learns to Count</h1><div id="chap"></div></header>
+<div id="stage"><div id="scale"><div id="world"></div></div></div>
+<div id="card"><div id="code"></div></div>
+<div id="cap"></div>
+<div id="ctl"><button class="s" id="pv" aria-label="Back">⏮</button><button id="pp">⏸ Pause</button><button class="s" id="nx" aria-label="Next">⏭</button><button class="s" id="vo" aria-label="Voice on or off">🔊</button></div>
+<div id="dots"></div>
+<script>
+const st=(n,k)=>Array.from({length:n},(_,i)=>`<div class="cube ${k?'in':''}">${i+1}</div>`).join('');
+const cube=(a,c)=>a.map(x=>`<div class="cube ${c||''}">${x}</div>`).join('');
+const S=[
+{n:'Opening',code:[],steps:[{s:'Hello, space explorer! Today we teach a robot called Robo-Rocket a number trick. We show it 1, 2, 3, and it guesses 4. Let’s read the code together, one line at a time!'}],
+ v:()=>`<div class="col"><div class="big" style="font-size:90px">🤖🚀</div><div class="row">${cube([1,2,3,'?'])}</div></div>`},
+{n:'Scene 1: The Toolbox',code:['import tensorflow as tf','from tensorflow.keras import layers, Sequential','import numpy as np'],
+ steps:[{l:[0],s:'The word import means bring in. We bring in TensorFlow, a giant toolbox for building robot brains. We nickname it t f, like calling a friend by a short name.'},
+ {l:[1],s:'From the toolbox we grab two things. Layers are slices of a brain, like layers of a cake. Sequential is a line-up rule that says: first this, then that, in order.'},
+ {l:[2],s:'NumPy is a helper that is super fast with numbers. We nickname it n p.'}],
+ v:k=>`<div class="col"><div class="row" style="gap:18px">${[['🧰','TensorFlow'],['🧱','layers + Sequential'],['🔢','NumPy']].map((t,i)=>`<div class="tool ${i==k?'on':''}"><span>${t[0]}</span>${t[1]}</div>`).join('')}</div></div>`},
+{n:'Scene 2: The Number Stars',code:['data = np.array([1., 2., 3., 4., 5., 6., 7., 8., 9., 10.])','seq_length = 3'],
+ steps:[{l:[0],s:'Here is a row of ten glowing number stars, one to ten. We keep them in a list called data. The little dots after the numbers just mean they can have decimals.'},
+ {l:[1],s:'seq length means sequence length. We set it to 3. That is a window that looks at three stars at a time.'}],
+ v:k=>`<div class="col"><div class="row">${st(10)}${k?'<div class="win"></div>':''}</div><div class="lab">${k?'a window of 3 stars':'10 number stars'}</div></div>`},
+{n:'Scene 3: Clues and Answers',code:['X, y = [], []','for i in range(len(data) - seq_length):','    X.append(data[i:i + seq_length])','    y.append(data[i + seq_length])'],
+ steps:[{l:[0],s:'We make two empty baskets. Basket X will hold the clues. Basket y will hold the answers.'},
+ {l:[1],s:'This is a loop, which means do it again and again. Ten stars minus a window of three leaves seven. So we slide our window along seven times!'},
+ {l:[2],s:'Each time, we grab the three stars inside the window and drop them in basket X. The first clue is 1, 2, 3.'},
+ {l:[3],s:'Then we grab the star right after the window and drop it in basket y. That is the answer: 4! The window slides on, and we repeat.'}],
+ v:k=>`<div class="col" style="gap:10px"><div class="row" style="transform:scale(.8) translateZ(0)">${st(10)}${k?'<div class="win go"></div>':''}</div><div class="row" style="gap:20px"><div class="bx"><b>X (clues)</b>${k>=2?'[1,2,3]<br>[2,3,4]<br>[3,4,5] …':'empty'}</div><div class="bx" style="min-width:130px"><b>y (answers)</b>${k>=3?'4<br>5<br>6 …':'empty'}</div></div></div>`},
+{n:'Scene 4: Tidy Arrays',code:['X = np.array(X)','y = np.array(y)','# Reshape for RNN: (samples, timesteps, features)','X = X.reshape((X.shape[0], X.shape[1], 1))'],
+ steps:[{l:[0,1],s:'We pour both baskets into neat NumPy arrays. An array is like a tidy tray that holds numbers in rows, so the robot can use them very quickly.'},
+ {l:[2,3],s:'Robo-Rocket likes its numbers served in a special shape. Seven clue sets, three numbers in each, and every number sitting in its own little box. That is the shape seven, three, one!'}],
+ v:k=>k?`<div class="col"><div class="row">${cube(['[1]','[2]','[3]'],'in')}</div><div class="lab">one clue set, each number in its own box<br>shape: 7 sets × 3 numbers × 1</div></div>`:`<div class="col"><div class="row" style="gap:30px"><div class="bx"><b>X array</b>[[1,2,3],<br>[2,3,4], …]</div><div class="bx" style="min-width:110px"><b>y array</b>[4,5, …]</div></div></div>`},
+{n:'Scene 5: Building the Brain',code:['model = Sequential([','    layers.SimpleRNN(16, input_shape=(seq_length, 1)),','    layers.Dense(1)','])',"model.compile(optimizer='adam', loss='mse')"],
+ steps:[{l:[0],s:'Now we build the brain! We name it model, and Sequential means we stack the brain slices in a line.'},
+ {l:[1],s:'The first slice is a Simple R N N. It has sixteen tiny helpers called neurons. It reads numbers in order, and it remembers what came before, just like you remember the start of a story!'},
+ {l:[2],s:'The second slice is Dense with one neuron. It is the speaker that says the final answer: just one number.'},
+ {l:[3],s:'The square bracket and bracket close the stack. The brain is built!'},
+ {l:[4],s:'Compile gets the robot ready to learn. Adam is a kind coach who helps it improve. M S E is a scoreboard that measures how far away its guess was. A smaller score is better!'}],
+ v:k=>`<div class="col"><div class="row" style="gap:6px;max-width:360px;flex-wrap:wrap">${k>=1?Array(16).fill('<div class="orb"></div>').join(''):'<div class="tool on"><span>🧱</span>Sequential</div>'}</div>${k>=1?'<div class="lab">16 memory helpers 🧠</div>':''}<div class="row" style="gap:30px">${k>=2?'<div class="big" style="font-size:48px">🔊</div>':''}${k>=4?'<div class="big" style="font-size:48px">🏋️</div><div class="big" style="font-size:48px">📏</div>':''}</div></div>`},
+{n:'Scene 6: Practice Time',code:["model.fit(X, y, epochs=200, verbose=0)  # Fewer epochs often suffice"],
+ steps:[{l:[0],s:'Fit means practice! The robot studies the clues X and the answers y. An epoch is one full practice round, and we do two hundred rounds. Verbose zero means practice quietly, with no chatter. Each round, the scoreboard gets a little better!'}],
+ v:()=>`<div class="col"><div class="big"><span class="spin">⚙️</span> 🤖</div><div class="bar"><i></i></div><div class="lab">200 practice rounds…</div></div>`},
+{n:'Scene 7: The Big Test',code:['next_input = np.array([[8., 9., 10.]]).reshape((1, 3, 1))','prediction = model.predict(next_input, verbose=0)','print("Next number:", round(prediction[0][0], 2))'],
+ steps:[{l:[0],s:'Quiz time! We show Robo-Rocket three new stars it has never seen as a clue: 8, 9, 10. We put them in the same box shape as before.'},
+ {l:[1],s:'Predict means make a guess. The robot thinks hard about the pattern it learned.'},
+ {l:[2],s:'Print shows the answer on the screen. Round makes it tidy with two decimal places. And Robo-Rocket says: the next number is about eleven! It learned the pattern!'}],
+ v:k=>`<div class="col"><div class="row">${cube([8,9,10],'in')}${k>=2?cube(['11'],''):k?cube(['?'],''):''}</div>${k==1?'<div class="big">🤖💭</div>':''}${k>=2?'<div class="say">Next number: about 11 🎉</div>':''}</div>`},
+{n:'The End',code:[],steps:[{s:'You just read a real A I program, line by line. You are a coder now. Great job!'}],v:()=>`<div class="col"><div class="big" style="font-size:90px">🏆</div><div class="lab">Mission complete, young coder!</div></div>`}];
+const $=id=>document.getElementById(id);let si=0,ki=0,playing=false,tok=0,voice=true,AC;
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+$('dots').innerHTML=S.map(()=>'<i></i>').join('');
+function fit(){const s=Math.min(1,(innerWidth-20)/580);$('scale').style.transform=`scale(${s})`;$('stage').style.height=270*s+'px';$('stage').style.maxWidth=580*s+'px'}
+addEventListener('resize',fit);fit();
+function render(){const sc=S[si],p=sc.steps[ki];$('chap').textContent=sc.n;$('world').innerHTML=sc.v(ki);
+ $('code').style.display=sc.code.length?'block':'none';
+ $('code').innerHTML=sc.code.map((c,i)=>`<div class="${p.l&&p.l.includes(i)?'on':''} ${c[0]=='#'?'cm':''}">${esc(c)}</div>`).join('');
+ $('cap').textContent=p.s;[...$('dots').children].forEach((d,i)=>d.className=i==si?'on':'')}
+function tone(f,d=.18){try{AC=AC||new AudioContext();const o=AC.createOscillator(),g=AC.createGain();o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(.12,AC.currentTime);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+d)}catch(e){}}
+function chime(){const b=330+si*45;tone(b);setTimeout(()=>tone(b*1.5,.25),110)}
+function say(t,done){speechSynthesis&&speechSynthesis.cancel();if(!voice||!window.speechSynthesis){setTimeout(done,2200+t.length*60);return}
+ const u=new SpeechSynthesisUtterance(t);u.rate=.9;u.pitch=1.15;const v=speechSynthesis.getVoices().find(v=>/^en/i.test(v.lang)&&/female|samantha|zira|google uk|google us/i.test(v.name));if(v)u.voice=v;u.onend=done;u.onerror=done;speechSynthesis.speak(u)}
+function run(){const my=++tok;render();chime();say(S[si].steps[ki].s,()=>{if(my===tok&&playing)move(1)})}
+function move(d){const sc=S[si];if(d>0){if(ki<sc.steps.length-1)ki++;else if(si<S.length-1){si++;ki=0}else{playing=false;tok++;btn();return}}
+ else{if(ki>0)ki--;else if(si>0){si--;ki=S[si].steps.length-1}}
+ if(playing)run();else{tok++;speechSynthesis&&speechSynthesis.cancel();render()}}
+function btn(){$('pp').textContent=playing?'⏸ Pause':(si==S.length-1&&ki==S[si].steps.length-1?'↺ Replay':'▶ Play')}
+$('pp').onclick=()=>{if(playing){playing=false;tok++;speechSynthesis&&speechSynthesis.cancel()}else{if(si==S.length-1&&ki==S[si].steps.length-1){si=0;ki=0}playing=true;run()}btn()};
+$('nx').onclick=()=>move(1);$('pv').onclick=()=>move(-1);
+$('vo').onclick=()=>{voice=!voice;$('vo').textContent=voice?'🔊':'🔇';if(!voice)speechSynthesis&&speechSynthesis.cancel()};
+$('go').onclick=()=>{$('ov').style.display='none';playing=true;btn();run()};
+addEventListener('keydown',e=>{if(e.key=='ArrowRight')move(1);if(e.key=='ArrowLeft')move(-1);if(e.key==' '&&e.target.tagName!='BUTTON'){e.preventDefault();$('pp').click()}});
+render();
+</script></body></html>
